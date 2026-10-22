@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Maya Interaktif - Kegiatan Ekonomi | SD N 2 Kedewatan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#0284c7',
+                            yellow: '#f59e0b',
+                            green: '#10b981',
+                            red: '#ef4444',
+                            purple: '#8b5cf6',
+                            bg: '#f0f9ff'
+                        }
+                    },
+                    fontFamily: {
+                        comic: ['"Comic Neue"', 'cursive', 'sans-serif'],
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* 16:9 Viewport Container */
+        #app-wrapper {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+        }
+
+        #main-stage {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            background-color: #f8fafc;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom scrollbar for inside tab contents if needed */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Animations */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(5%); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .animate-pulse-ring {
+            animation: pulse-ring 2s infinite ease-in-out;
+        }
+
+        .tab-btn.active {
+            background-color: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.4);
+        }
+
+        /* Print styling for LKPD */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                color: #000;
+                background: #fff;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-wrapper">
+    <div id="main-stage">
+        
+        <!-- AUDIO SOUND ENGINE TOGGLE & HEADER OVERLAY -->
+        <div class="absolute top-3 right-4 z-50 flex items-center gap-2">
+            <button id="reset-global-btn" onclick="confirmResetGlobal()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1.5 px-3 rounded-xl shadow-md transition text-xs flex items-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> Reset Lab
+            </button>
+            <button id="audio-toggle-btn" onclick="toggleAudio()" class="bg-amber-500 hover:bg-amber-600 text-white p-2 rounded-xl shadow-md transition w-9 h-9 flex items-center justify-center">
+                <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+
+        <!-- ================= SPLASH SCREEN ================= -->
+        <div id="splash-screen" class="absolute inset-0 bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-600 z-40 flex flex-col items-center justify-between p-8 text-white">
+            <!-- Header Splash -->
+            <div class="text-center mt-4">
+                <div class="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase border border-white/30 mb-2">
+                    <i class="fa-solid fa-school mr-1"></i> SD N 2 Kedewatan • IPAS Fase C Kelas 5
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black font-comic tracking-wider text-amber-300 drop-shadow-lg">
+                    LAB MAYA KEGIATAN EKONOMI
+                </h1>
+                <p class="text-sm md:text-base text-sky-100 mt-1 max-w-xl mx-auto">
+                    Mari Belajar & Simulasikan Rantai Ekonomi Produksi, Distribusi, dan Konsumsi Sekitar Kita!
+                </p>
+            </div>
+
+            <!-- Graphic Mascot -->
+            <div class="flex items-center justify-center gap-8 my-auto">
+                <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 flex gap-6 items-center shadow-2xl">
+                    <div class="text-center animate-bounce-slow">
+                        <div class="w-20 h-20 bg-amber-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg border-2 border-white mb-2">
+                            🏭
+                        </div>
+                        <span class="text-xs font-bold bg-amber-500/80 px-2 py-0.5 rounded-full">PRODUKSI</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-2xl text-amber-300"></i>
+                    <div class="text-center animate-bounce-slow" style="animation-delay: 0.3s;">
+                        <div class="w-20 h-20 bg-emerald-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg border-2 border-white mb-2">
+                            🚚
+                        </div>
+                        <span class="text-xs font-bold bg-emerald-500/80 px-2 py-0.5 rounded-full">DISTRIBUSI</span>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-2xl text-emerald-300"></i>
+                    <div class="text-center animate-bounce-slow" style="animation-delay: 0.6s;">
+                        <div class="w-20 h-20 bg-rose-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg border-2 border-white mb-2">
+                            🛍️
+                        </div>
+                        <span class="text-xs font-bold bg-rose-500/80 px-2 py-0.5 rounded-full">KONSUMSI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading & Start Button -->
+            <div class="w-full max-w-md text-center mb-6">
+                <div id="loading-box" class="w-full">
+                    <div class="flex justify-between text-xs font-semibold mb-1 text-sky-200">
+                        <span>Memuat Sumber Daya Lab...</span>
+                        <span id="loading-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-white/20 rounded-full h-3 overflow-hidden border border-white/30 p-0.5">
+                        <div id="loading-bar" class="bg-amber-400 h-full rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
+                <button id="start-btn" onclick="startApp()" class="hidden w-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-900 font-extrabold text-xl py-4 px-8 rounded-2xl shadow-2xl transform hover:scale-105 active:scale-95 transition border-2 border-white/50 animate-pulse-ring">
+                    <i class="fa-solid fa-play mr-2"></i> MULAI PETUALANGAN EKONOMI!
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= MAIN NAVIGATION HEADER ================= -->
+        <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="bg-gradient-to-tr from-sky-500 to-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-md">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <h2 class="font-extrabold text-slate-800 text-base leading-tight">LAB MAYA KEGIATAN EKONOMI</h2>
+                    <p class="text-xs text-slate-500 font-medium">SD N 2 Kedewatan • Kelas 5 (Fase C)</p>
+                </div>
+            </div>
+
+            <!-- TAB BUTTONS -->
+            <nav class="flex gap-1.5 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                <button onclick="switchTab('teori')" id="tab-btn-teori" class="tab-btn active px-4 py-2 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-book-open"></i> Teori
+                </button>
+                <button onclick="switchTab('prosedur')" id="tab-btn-prosedur" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-list-check"></i> Prosedur
+                </button>
+                <button onclick="switchTab('simulasi')" id="tab-btn-simulasi" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-flask"></i> Simulasi
+                </button>
+                <button onclick="switchTab('lkpd')" id="tab-btn-lkpd" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen"></i> LKPD
+                </button>
+                <button onclick="switchTab('pengembang')" id="tab-btn-pengembang" class="tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear"></i> Pengembang
+                </button>
+            </nav>
+
+            <div class="w-24"></div> <!-- Spacer for right sound button -->
+        </header>
+
+        <!-- ================= MAIN CONTENT VIEWPORT ================= -->
+        <main class="flex-1 relative bg-slate-50 overflow-hidden">
+
+            <!-- 1. TAB TEORI -->
+            <section id="tab-teori" class="tab-content absolute inset-0 p-6 flex flex-col gap-4 overflow-y-auto custom-scroll">
+                <div class="flex justify-between items-center bg-sky-100/70 border border-sky-200 p-3 rounded-2xl">
+                    <p class="text-xs text-sky-900 font-medium">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1 text-sm"></i>
+                        <strong>Tahukah Kamu?</strong> Kegiatan ekonomi adalah segala aktivitas yang dilakukan manusia untuk memenuhi kebutuhan hidup sehari-hari.
+                    </p>
+                    <button onclick="openMiniQuiz()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition shadow">
+                        <i class="fa-solid fa-circle-question mr-1"></i> Mini Kuis Tebak Peran
+                    </button>
+                </div>
+
+                <!-- 3 CARDS -->
+                <div class="grid grid-cols-3 gap-4 flex-1">
+                    <!-- PRODUKSI -->
+                    <div class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl text-amber-600 border border-amber-200">
+                                    🏭
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">1. PRODUKSI</h3>
+                                    <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Pelaku: PRODUSEN</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Kegiatan <strong>menghasilkan</strong> atau <strong>menambah nilai guna</strong> suatu barang/jasa untuk memenuhi kebutuhan.
+                            </p>
+                            <div class="bg-amber-50 p-3 rounded-xl border border-amber-100 text-xs">
+                                <span class="font-bold text-amber-900 block mb-1">Contoh Lokal Bali / Kedewatan:</span>
+                                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                                    <li>Petani mengolah sawah padi di Ubud/Kedewatan.</li>
+                                    <li>Pengrajin ukiran bambu & kayu.</li>
+                                    <li>Koki memasak Nasi Ayam Kedewatan.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-[11px] font-semibold text-amber-600 bg-amber-100/50 block py-1 rounded-lg">Tujuan: Menghasilkan Barang/Jasa</span>
+                        </div>
+                    </div>
+
+                    <!-- DISTRIBUSI -->
+                    <div class="bg-white rounded-2xl p-4 border border-emerald-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-2xl text-emerald-600 border border-emerald-200">
+                                    🚚
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">2. DISTRIBUSI</h3>
+                                    <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Pelaku: DISTRIBUTOR</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Kegiatan <strong>menyalurkan</strong> barang/jasa hasil produksi dari produsen sampai ke tangan konsumen.
+                            </p>
+                            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-xs">
+                                <span class="font-bold text-emerald-900 block mb-1">Contoh Lokal Bali / Kedewatan:</span>
+                                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                                    <li>Sopir truk pengangkut beras ke Pasar Payangan.</li>
+                                    <li>Kurir pengirim oleh-oleh kerajinan.</li>
+                                    <li>Pedagang warung / toko kelontong desa.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-[11px] font-semibold text-emerald-600 bg-emerald-100/50 block py-1 rounded-lg">Tujuan: Meratakan Hasil Barang</span>
+                        </div>
+                    </div>
+
+                    <!-- KONSUMSI -->
+                    <div class="bg-white rounded-2xl p-4 border border-rose-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center text-2xl text-rose-600 border border-rose-200">
+                                    🛍️
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">3. KONSUMSI</h3>
+                                    <span class="text-[10px] font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full">Pelaku: KONSUMEN</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+                                Kegiatan <strong>menggunakan</strong>, menghabiskan, atau mengurangi nilai guna barang/jasa.
+                            </p>
+                            <div class="bg-rose-50 p-3 rounded-xl border border-rose-100 text-xs">
+                                <span class="font-bold text-rose-900 block mb-1">Contoh Lokal Bali / Kedewatan:</span>
+                                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                                    <li>Siswa membeli makanan di kantin sekolah.</li>
+                                    <li>Wisatawan membeli souvenir kerajinan.</li>
+                                    <li>Keluarga menyewa kendaraan untuk liburan.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-[11px] font-semibold text-rose-600 bg-rose-100/50 block py-1 rounded-lg">Tujuan: Memenuhi Kebutuhan</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. TAB PROSEDUR -->
+            <section id="tab-prosedur" class="tab-content absolute inset-0 p-6 hidden flex flex-col gap-4 overflow-y-auto custom-scroll">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-sky-500"></i> Panduan Pelaksanaan Simulasi Lab Maya
+                    </h3>
+                    <p class="text-xs text-slate-500">Ikuti langkah-langkah di bawah ini untuk menjalankan simulasi alur rantai ekonomi usaha kerajinan & kuliner di Kedewatan!</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3 flex-1">
+                    <!-- Step 1 -->
+                    <div class="bg-white p-4 rounded-2xl border-t-4 border-amber-500 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="w-7 h-7 bg-amber-500 text-white rounded-full flex items-center justify-center font-bold text-xs">1</span>
+                                <span class="text-2xl">🪵</span>
+                            </div>
+                            <h4 class="font-bold text-xs text-slate-800 mb-1">Tahap Produksi</h4>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Pilih bahan baku utama (Bambu Kerajinan / Beras Culinary). Atur jumlah tenaga kerja & jam produksi lalu klik tombol <strong>"Mulai Produksi"</strong>.
+                            </p>
+                        </div>
+                        <div class="bg-amber-50 p-2 rounded-xl text-[10px] text-amber-800 font-medium border border-amber-100">
+                            🎯 Output: Jumlah Barang Jadi
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-white p-4 rounded-2xl border-t-4 border-emerald-500 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-xs">2</span>
+                                <span class="text-2xl">🚛</span>
+                            </div>
+                            <h4 class="font-bold text-xs text-slate-800 mb-1">Tahap Distribusi</h4>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Pilih armada transportasi (Motor Kurir / Mobil Pick-up) dan tentukan harga jual & ongkos kirim. Klik <strong>"Kirim Barang"</strong>.
+                            </p>
+                        </div>
+                        <div class="bg-emerald-50 p-2 rounded-xl text-[10px] text-emerald-800 font-medium border border-emerald-100">
+                            🎯 Output: Barang Terkirim
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-white p-4 rounded-2xl border-t-4 border-rose-500 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="w-7 h-7 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-xs">3</span>
+                                <span class="text-2xl">🛒</span>
+                            </div>
+                            <h4 class="font-bold text-xs text-slate-800 mb-1">Tahap Konsumsi</h4>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Layani pembeli/konsumen yang datang. Klik <strong>"Proses Konsumsi"</strong> untuk menjual produk dan menerima kepuasan pelanggan.
+                            </p>
+                        </div>
+                        <div class="bg-rose-50 p-2 rounded-xl text-[10px] text-rose-800 font-medium border border-rose-100">
+                            🎯 Output: Keuntungan & Kepuasan
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-white p-4 rounded-2xl border-t-4 border-purple-500 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="w-7 h-7 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-xs">4</span>
+                                <span class="text-2xl">📊</span>
+                            </div>
+                            <h4 class="font-bold text-xs text-slate-800 mb-1">Analisis Keseimbangan</h4>
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                Amati meteran indikator! Seimbangkan antara Biaya Produksi, Keuntungan, Kepuasan, dan Efisiensi Usaha.
+                            </p>
+                        </div>
+                        <div class="bg-purple-50 p-2 rounded-xl text-[10px] text-purple-800 font-medium border border-purple-100">
+                            🎯 Goal: Bintang 3 Ekonomi
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checklist Persiapan Siswa -->
+                <div class="bg-amber-50/60 border border-amber-200 p-4 rounded-2xl">
+                    <h4 class="font-bold text-slate-800 text-xs mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-square-check text-amber-600"></i> Checklist Mandiri Siswa Sebelum Simulasi:
+                    </h4>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-xl border border-slate-200">
+                            <input type="checkbox" class="accent-amber-500 w-4 h-4" onchange="playClickSound()"> Saya paham beda Produsen, Distributor, Konsumen.
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-xl border border-slate-200">
+                            <input type="checkbox" class="accent-amber-500 w-4 h-4" onchange="playClickSound()"> Saya siap mengelola modal usaha desa.
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-xl border border-slate-200">
+                            <input type="checkbox" class="accent-amber-500 w-4 h-4" onchange="playClickSound()"> Saya siap menyelesaikan tantangan LKPD.
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. TAB SIMULASI INTERAKTIF -->
+            <section id="tab-simulasi" class="tab-content absolute inset-0 p-5 hidden flex flex-col gap-3">
+                <!-- TOP STATS BAR / INDICATORS -->
+                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-4 gap-3 shrink-0">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm">💰</div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase">Kas / Keuntungan</div>
+                            <div id="sim-money" class="text-sm font-extrabold text-emerald-600">Rp 100.000</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-sm">📦</div>
+                        <div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase">Stok Barang Jadi</div>
+                            <div id="sim-stock" class="text-sm font-extrabold text-sky-600">0 Unit</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm">❤️</div>
+                        <div class="w-full">
+                            <div class="text-[10px] text-slate-500 font-bold uppercase flex justify-between">
+                                <span>Kepuasan Pelanggan</span>
+                                <span id="sim-satisfaction-val">80%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
+                                <div id="sim-satisfaction-bar" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 80%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-sm">⚡</div>
+                        <div class="w-full">
+                            <div class="text-[10px] text-slate-500 font-bold uppercase flex justify-between">
+                                <span>Efisiensi Rantai</span>
+                                <span id="sim-efficiency-val">75%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-1">
+                                <div id="sim-efficiency-bar" class="bg-purple-500 h-full rounded-full transition-all duration-300" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULATION STAGES BOARD -->
+                <div class="grid grid-cols-3 gap-3 flex-1 min-h-0">
+                    
+                    <!-- STAGE 1: PRODUKSI -->
+                    <div class="bg-white rounded-2xl p-3 border-2 border-amber-300 flex flex-col justify-between shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-amber-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded-bl-lg">
+                            TAHAP 1
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-xs mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-industry text-amber-500"></i> PRODUKSI (Pabrik Kedewatan)
+                            </h4>
+
+                            <!-- Pilih Jenis Usaha -->
+                            <div class="mb-2">
+                                <label class="text-[10px] font-bold text-slate-600 block mb-1">Pilih Produk:</label>
+                                <select id="prod-item" onchange="updateProdCost()" class="w-full text-xs font-semibold bg-slate-100 border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-amber-400 outline-none">
+                                    <option value="bambu">🎋 Kerajinan Bambu Ubud (Rp 10.000/unit)</option>
+                                    <option value="ayam">🍗 Nasi Ayam Kedewatan (Rp 15.000/unit)</option>
+                                </select>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-600">
+                                        <span>Jumlah Pekerja:</span>
+                                        <span id="prod-workers-val" class="text-amber-600">2 Orang</span>
+                                    </div>
+                                    <input type="range" id="prod-workers" min="1" max="5" value="2" oninput="updateProdCost()" class="w-full accent-amber-500 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-600">
+                                        <span>Target Produksi:</span>
+                                        <span id="prod-qty-val" class="text-amber-600">5 Unit</span>
+                                    </div>
+                                    <input type="range" id="prod-qty" min="1" max="10" value="5" oninput="updateProdCost()" class="w-full accent-amber-500 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+
+                            <!-- Cost Box -->
+                            <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 my-2 text-[11px] space-y-0.5">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Biaya Produksi:</span>
+                                    <span id="prod-cost-total" class="font-bold text-amber-800">Rp 50.000</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="runProduction()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs py-2 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-gears"></i> Mulai Produksi
+                        </button>
+                    </div>
+
+                    <!-- STAGE 2: DISTRIBUSI -->
+                    <div class="bg-white rounded-2xl p-3 border-2 border-emerald-300 flex flex-col justify-between shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-emerald-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded-bl-lg">
+                            TAHAP 2
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-xs mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-truck-fast text-emerald-500"></i> DISTRIBUSI (Pengiriman)
+                            </h4>
+
+                            <!-- Pilih Armada -->
+                            <div class="mb-2">
+                                <label class="text-[10px] font-bold text-slate-600 block mb-1">Armada Transportasi:</label>
+                                <select id="dist-vehicle" onchange="updateDistCost()" class="w-full text-xs font-semibold bg-slate-100 border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-emerald-400 outline-none">
+                                    <option value="motor">🛵 Sepeda Motor Kurir (Cepat, Hemat)</option>
+                                    <option value="pickup">🛻 Mobil Pick-Up (Kapasitas Besar)</option>
+                                </select>
+                            </div>
+
+                            <!-- Harga Jual Slider -->
+                            <div class="space-y-2">
+                                <div>
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-600">
+                                        <span>Harga Jual / Unit:</span>
+                                        <span id="dist-price-val" class="text-emerald-600">Rp 20.000</span>
+                                    </div>
+                                    <input type="range" id="dist-price" min="12000" max="35000" step="1000" value="20000" oninput="updateDistCost()" class="w-full accent-emerald-500 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                </div>
+                            </div>
+
+                            <!-- Cost Box -->
+                            <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-200 my-2 text-[11px] space-y-0.5">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Ongkos Kirim/Trip:</span>
+                                    <span id="dist-cost-total" class="font-bold text-emerald-800">Rp 10.000</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Siap Dikirim:</span>
+                                    <span id="dist-ready-qty" class="font-bold text-emerald-800">0 Unit</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="runDistribution()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs py-2 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Barang
+                        </button>
+                    </div>
+
+                    <!-- STAGE 3: KONSUMSI -->
+                    <div class="bg-white rounded-2xl p-3 border-2 border-rose-300 flex flex-col justify-between shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-rose-400 text-slate-900 font-black text-[10px] px-2 py-0.5 rounded-bl-lg">
+                            TAHAP 3
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-xs mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-store text-rose-500"></i> KONSUMSI (Pasar / Konsumen)
+                            </h4>
+
+                            <div class="bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-center mb-2">
+                                <span class="text-[10px] text-slate-500 block font-bold">STATUS PASAR / PEMBELI:</span>
+                                <div id="consumer-demand-text" class="text-xs font-extrabold text-rose-600 mt-0.5">
+                                    Wisatawan Mencari Souvenir & Kuliner!
+                                </div>
+                            </div>
+
+                            <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-200 space-y-1 text-[11px]">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">Barang Tersedia:</span>
+                                    <span id="market-stock" class="font-bold text-rose-800">0 Unit</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-600">Estimasi Pembeli:</span>
+                                    <span id="market-buyers" class="font-bold text-rose-800">4 Orang</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <button onclick="runConsumption()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2 rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-cart-shopping"></i> Proses Konsumsi & Jual
+                            </button>
+                            <button onclick="resetSimulation()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-[11px] py-1.5 rounded-xl transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-rotate text-xs"></i> Reset Simulasi Ini
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- LIVE LOG / FEEDBACK BANNER -->
+                <div class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs flex items-center justify-between shrink-0 shadow-inner border border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span class="font-bold text-amber-300">Catatan Aktivitas:</span>
+                        <span id="sim-log-text" class="text-slate-200 font-medium">Selamat datang! Silahkan mulai produksi barang pertama Anda.</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">Lab Maya SD N 2 Kedewatan</span>
+                </div>
+            </section>
+
+            <!-- 4. TAB LKPD -->
+            <section id="tab-lkpd" class="tab-content absolute inset-0 p-5 hidden flex flex-col gap-3 overflow-y-auto custom-scroll">
+                <div id="print-area" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <!-- LKPD Header -->
+                    <div class="border-b-2 border-slate-800 pb-3 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900 tracking-tight">LEMBAR KERJA PESERTA DIDIK (LKPD) DIGITAL</h2>
+                            <p class="text-xs text-slate-600 font-semibold">Materi: Kegiatan Ekonomi • Kelas 5 SD N 2 Kedewatan</p>
+                        </div>
+                        <div class="text-right text-xs">
+                            <input type="text" id="student-name" placeholder="Nama Siswa..." class="border border-slate-300 rounded px-2 py-1 text-xs mb-1 block w-36 focus:ring-1 focus:ring-sky-500">
+                            <input type="text" id="student-class" placeholder="Kelas / No. Absen" class="border border-slate-300 rounded px-2 py-1 text-xs block w-36 focus:ring-1 focus:ring-sky-500">
+                        </div>
+                    </div>
+
+                    <!-- SOAL 1: PILIHAN GANDA -->
+                    <div class="space-y-2">
+                        <h4 class="font-extrabold text-xs text-sky-800 bg-sky-50 p-2 rounded-lg border border-sky-200">
+                            bagian A. Pilihan Ganda (Alur Ekonomi Lokal)
+                        </h4>
+                        
+                        <div class="text-xs text-slate-700 space-y-1">
+                            <p class="font-semibold">1. Pak Wayan adalah pengrajin ukiran bambu di Desa Kedewatan. Aktivitas Pak Wayan membuat kerajinan dari bambu mentah dinamakan kegiatan...</p>
+                            <div class="grid grid-cols-3 gap-2 pl-2">
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q1" value="A" class="accent-sky-500"> A. Konsumsi
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q1" value="B" class="accent-sky-500"> B. Produksi
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q1" value="C" class="accent-sky-500"> C. Distribusi
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-700 space-y-1 pt-2">
+                            <p class="font-semibold">2. Seseorang yang mengantarkan makanan Nasi Ayam Kedewatan dari warung ke rumah pembeli disebut sebagai...</p>
+                            <div class="grid grid-cols-3 gap-2 pl-2">
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q2" value="A" class="accent-sky-500"> A. Produsen
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q2" value="B" class="accent-sky-500"> B. Konsumen
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 p-1.5 rounded border">
+                                    <input type="radio" name="q2" value="C" class="accent-sky-500"> C. Distributor
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOAL 2: MENJODOHKAN (CLICK TO PAIR) -->
+                    <div class="space-y-2">
+                        <h4 class="font-extrabold text-xs text-emerald-800 bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                            Bagian B. Pasangkan Pekerjaan dengan Jenis Kegiatan Ekonomi
+                        </h4>
+                        <p class="text-[11px] text-slate-500">Klik tombol peran di sebelah kiri, lalu klik kategori di sebelah kanan!</p>
+
+                        <div id="matching-container" class="grid grid-cols-2 gap-4 text-xs">
+                            <div class="space-y-2">
+                                <button onclick="selectMatchLeft(1)" id="match-l-1" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-white font-medium hover:border-emerald-500 transition">
+                                    1. Petani Sawah Ubud
+                                </button>
+                                <button onclick="selectMatchLeft(2)" id="match-l-2" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-white font-medium hover:border-emerald-500 transition">
+                                    2. Sopir Truk Sembako
+                                </button>
+                                <button onclick="selectMatchLeft(3)" id="match-l-3" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-white font-medium hover:border-emerald-500 transition">
+                                    3. Wisatawan Membeli Oleh-oleh
+                                </button>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button onclick="selectMatchRight('distribusi')" id="match-r-distribusi" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-slate-50 font-bold text-emerald-700">
+                                    👉 DISTRIBUSI
+                                </button>
+                                <button onclick="selectMatchRight('produksi')" id="match-r-produksi" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-slate-50 font-bold text-amber-700">
+                                    👉 PRODUKSI
+                                </button>
+                                <button onclick="selectMatchRight('konsumsi')" id="match-r-konsumsi" class="w-full text-left p-2 rounded-lg border border-slate-300 bg-slate-50 font-bold text-rose-700">
+                                    👉 KONSUMSI
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SOAL 3: REFLEKSI -->
+                    <div class="space-y-2">
+                        <h4 class="font-extrabold text-xs text-purple-800 bg-purple-50 p-2 rounded-lg border border-purple-200">
+                            Bagian C. Refleksi Singkat
+                        </h4>
+                        <div class="text-xs">
+                            <label class="font-semibold text-slate-700 block mb-1">Mengapa ketiga kegiatan ekonomi (Produksi, Distribusi, Konsumsi) harus saling melengkapi?</label>
+                            <textarea id="reflection-text" rows="2" placeholder="Tuliskan jawaban pendapatmu di sini..." class="w-full p-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-purple-400 outline-none"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- RESULT & ACTION BAR -->
+                    <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                        <div id="lkpd-result-box" class="hidden flex items-center gap-3">
+                            <div class="text-2xl" id="star-rating">⭐⭐⭐⭐⭐</div>
+                            <div>
+                                <span class="text-xs text-slate-500 block">Nilai LKPD Kamu:</span>
+                                <span id="lkpd-score" class="text-xl font-black text-emerald-600">100 / 100</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 ml-auto">
+                            <button onclick="checkLKPD()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow transition active:scale-95 flex items-center gap-1">
+                                <i class="fa-solid fa-check-double"></i> Cek Jawaban & Skoring
+                            </button>
+                            <button onclick="printLKPD()" class="bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow transition active:scale-95 flex items-center gap-1">
+                                <i class="fa-solid fa-print"></i> Cetak / Simpan Hasil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. TAB PENGEMBANG -->
+            <section id="tab-pengembang" class="tab-content absolute inset-0 p-6 hidden flex flex-col gap-4 overflow-y-auto custom-scroll">
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- PROFILE CARD -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-center flex flex-col items-center justify-center">
+                        <div class="w-20 h-20 bg-gradient-to-tr from-sky-400 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl mb-3 shadow-lg">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="font-extrabold text-slate-800 text-base">SD N 2 KEDEWATAN</h3>
+                        <p class="text-xs text-sky-600 font-bold mb-2">Tim Pengembang Lab Maya Kelas 5</p>
+                        <p class="text-[11px] text-slate-500 leading-relaxed mb-4">
+                            Inovasi Media Pembelajaran Interaktif IPAS Berbasis Web Standalone & Contextual Learning Bali.
+                        </p>
+                        <div class="bg-slate-100 p-2 rounded-xl w-full text-[11px] text-slate-600 font-medium">
+                            📍 Kedewatan, Ubud, Gianyar, Bali
+                        </div>
+                    </div>
+
+                    <!-- CP & TP CARD -->
+                    <div class="col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-3">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-bullseye text-amber-500"></i> Capaian & Tujuan Pembelajaran (Kurikulum Merdeka)
+                            </h3>
+
+                            <div class="space-y-2 text-xs">
+                                <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                                    <strong class="text-amber-900 block mb-0.5">Capaian Pembelajaran (CP) IPAS Fase C:</strong>
+                                    <p class="text-slate-700 text-[11px]">
+                                        Peserta didik mengidentifikasi hubungan antara kondisi alam dengan kegiatan ekonomi di daerahnya, serta memahami peran produsen, distributor, dan konsumen dalam rantai ekonomi.
+                                    </p>
+                                </div>
+
+                                <div class="bg-sky-50 p-2.5 rounded-xl border border-sky-200">
+                                    <strong class="text-sky-900 block mb-0.5">Tujuan Pembelajaran (TP):</strong>
+                                    <ul class="list-disc list-inside text-slate-700 text-[11px] space-y-0.5">
+                                        <li>Menganalisis 3 jenis kegiatan ekonomi utama beserta contoh lokal Bali.</li>
+                                        <li>Simulasikan alur produksi, distribusi, dan konsumsi melalui mini lab maya.</li>
+                                        <li>Menumbuhkan kesadaran peran ekonomi dalam menjaga keharmonisan masyarakat.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FOOTER TECH INFO -->
+                        <div class="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                            <span>Versi Aplikasi: 2.0 (Standalone Offline Edition)</span>
+                            <span>Teknologi: HTML5, Tailwind CSS, Web Audio API</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- MINI QUIZ MODAL -->
+<div id="quiz-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 animate-bounce-slow" style="animation-duration: 0.5s;">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-extrabold text-slate-800 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-gamepad text-amber-500"></i> Mini Kuis: Tebak Peran!
+            </h3>
+            <button onclick="closeMiniQuiz()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+        </div>
+        <p class="text-xs text-slate-600 mb-4" id="quiz-question">
+            "Ibu Ni Luh membeli bahan beras di pasar untuk dimasak di rumah." Apa peran Ibu Ni Luh dalam kegiatan ekonomi?
+        </p>
+        <div class="space-y-2 text-xs font-bold">
+            <button onclick="answerMiniQuiz('A')" class="w-full bg-slate-100 hover:bg-amber-400 hover:text-slate-900 text-slate-700 p-2.5 rounded-xl transition text-left">
+                A. Produsen
+            </button>
+            <button onclick="answerMiniQuiz('B')" class="w-full bg-slate-100 hover:bg-amber-400 hover:text-slate-900 text-slate-700 p-2.5 rounded-xl transition text-left">
+                B. Konsumen
+            </button>
+            <button onclick="answerMiniQuiz('C')" class="w-full bg-slate-100 hover:bg-amber-400 hover:text-slate-900 text-slate-700 p-2.5 rounded-xl transition text-left">
+                C. Distributor
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT LOGIC -->
+<script>
+    /* ================= Web Audio API Sound Engine (Standalone Offline) ================= */
+    let audioCtx = null;
+    let isMuted = false;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function toggleAudio() {
+        isMuted = !isMuted;
+        const icon = document.getElementById('audio-icon');
+        const btn = document.getElementById('audio-toggle-btn');
+        if (isMuted) {
+            icon.className = 'fa-solid fa-volume-xmark';
+            btn.classList.replace('bg-amber-500', 'bg-slate-500');
+        } else {
+            icon.className = 'fa-solid fa-volume-high';
+            btn.classList.replace('bg-slate-500', 'bg-amber-500');
+            playClickSound();
+        }
+    }
+
+    function playTone(freq, duration, type = 'sine', delay = 0) {
+        if (isMuted || !audioCtx) return;
+        setTimeout(() => {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }, delay);
+    }
+
+    function playClickSound() {
+        playTone(600, 0.08, 'sine');
+    }
+
+    function playSuccessSound() {
+        playTone(523.25, 0.1, 'triangle', 0);   // C5
+        playTone(659.25, 0.1, 'triangle', 100); // E5
+        playTone(783.99, 0.2, 'triangle', 200); // G5
+    }
+
+    function playErrorSound() {
+        playTone(200, 0.15, 'sawtooth', 0);
+        playTone(150, 0.2, 'sawtooth', 100);
+    }
+
+    function playFanfareSound() {
+        playTone(400, 0.1, 'sine', 0);
+        playTone(500, 0.1, 'sine', 100);
+        playTone(600, 0.1, 'sine', 200);
+        playTone(800, 0.3, 'triangle', 300);
+    }
+
+    function playResetSound() {
+        playTone(400, 0.1, 'sine', 0);
+        playTone(300, 0.15, 'sine', 100);
+    }
+
+    /* ================= Splash Screen Loading Simulation ================= */
+    window.addEventListener('DOMContentLoaded', () => {
+        let percent = 0;
+        const interval = setInterval(() => {
+            percent += Math.floor(Math.random() * 15) + 10;
+            if (percent >= 100) {
+                percent = 100;
+                clearInterval(interval);
+                document.getElementById('loading-box').classList.add('hidden');
+                document.getElementById('start-btn').classList.remove('hidden');
+            }
+            document.getElementById('loading-percent').innerText = percent + '%';
+            document.getElementById('loading-bar').style.width = percent + '%';
+        }, 150);
+    });
+
+    function startApp() {
+        initAudio();
+        playFanfareSound();
+        const splash = document.getElementById('splash-screen');
+        splash.style.transition = 'opacity 0.5s ease';
+        splash.style.opacity = '0';
+        setTimeout(() => {
+            splash.classList.add('hidden');
+        }, 500);
+    }
+
+    /* ================= Tab Switching ================= */
+    function switchTab(tabId) {
+        initAudio();
+        playClickSound();
+        
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+        document.getElementById('tab-btn-' + tabId).classList.add('active');
+    }
+
+    /* ================= Mini Quiz Teori ================= */
+    function openMiniQuiz() {
+        initAudio();
+        playClickSound();
+        document.getElementById('quiz-modal').classList.remove('hidden');
+    }
+
+    function closeMiniQuiz() {
+        playClickSound();
+        document.getElementById('quiz-modal').classList.add('hidden');
+    }
+
+    function answerMiniQuiz(ans) {
+        if (ans === 'B') {
+            playSuccessSound();
+            alert("🎉 Benar sekali! Membeli beras untuk digunakan/dikonsumsi adalah kegiatan KONSUMSI.");
+            closeMiniQuiz();
+        } else {
+            playErrorSound();
+            alert("❌ Kurang tepat! Menggunakan barang untuk kebutuhan adalah Konsumsi. Coba lagi!");
+        }
+    }
+
+    /* ================= Simulasi Logic ================= */
+    let state = {
+        money: 100000,
+        producedStock: 0,
+        distributedStock: 0,
+        satisfaction: 80,
+        efficiency: 75,
+        itemType: 'bambu'
+    };
+
+    function updateProdCost() {
+        const item = document.getElementById('prod-item').value;
+        const workers = parseInt(document.getElementById('prod-workers').value);
+        const qty = parseInt(document.getElementById('prod-qty').value);
+
+        document.getElementById('prod-workers-val').innerText = workers + " Orang";
+        document.getElementById('prod-qty-val').innerText = qty + " Unit";
+
+        const unitCost = item === 'bambu' ? 10000 : 15000;
+        const totalCost = (unitCost * qty) + (workers * 2000);
+        document.getElementById('prod-cost-total').innerText = "Rp " + totalCost.toLocaleString('id-ID');
+        state.itemType = item;
+    }
+
+    function runProduction() {
+        initAudio();
+        const item = document.getElementById('prod-item').value;
+        const workers = parseInt(document.getElementById('prod-workers').value);
+        const qty = parseInt(document.getElementById('prod-qty').value);
+        const unitCost = item === 'bambu' ? 10000 : 15000;
+        const totalCost = (unitCost * qty) + (workers * 2000);
+
+        if (state.money < totalCost) {
+            playErrorSound();
+            updateLog("⚠️ Uang kas tidak cukup untuk biaya produksi!");
+            return;
+        }
+
+        state.money -= totalCost;
+        state.producedStock += qty;
+        playSuccessSound();
+
+        updateUI();
+        updateLog(`✅ Berhasil memproduksi ${qty} unit ${item === 'bambu' ? 'Kerajinan Bambu' : 'Nasi Ayam'}!`);
+    }
+
+    function updateDistCost() {
+        const vehicle = document.getElementById('dist-vehicle').value;
+        const price = parseInt(document.getElementById('dist-price').value);
+
+        document.getElementById('dist-price-val').innerText = "Rp " + price.toLocaleString('id-ID');
+        const shipCost = vehicle === 'motor' ? 10000 : 25000;
+        document.getElementById('dist-cost-total').innerText = "Rp " + shipCost.toLocaleString('id-ID');
+        document.getElementById('dist-ready-qty').innerText = state.producedStock + " Unit";
+    }
+
+    function runDistribution() {
+        initAudio();
+        if (state.producedStock <= 0) {
+            playErrorSound();
+            updateLog("⚠️ Belum ada barang hasil produksi untuk dikirim!");
+            return;
+        }
+
+        const vehicle = document.getElementById('dist-vehicle').value;
+        const shipCost = vehicle === 'motor' ? 10000 : 25000;
+
+        if (state.money < shipCost) {
+            playErrorSound();
+            updateLog("⚠️ Uang kas tidak cukup untuk ongkos kirim!");
+            return;
+        }
+
+        state.money -= shipCost;
+        state.distributedStock += state.producedStock;
+        const qtySent = state.producedStock;
+        state.producedStock = 0;
+
+        playSuccessSound();
+        updateUI();
+        updateLog(`🚚 Berhasil menyalurkan ${qtySent} unit barang ke pasar via ${vehicle === 'motor' ? 'Motor' : 'Pick-up'}!`);
+    }
+
+    function runConsumption() {
+        initAudio();
+        if (state.distributedStock <= 0) {
+            playErrorSound();
+            updateLog("⚠️ Pasar kosong! Belum ada barang disalurkan oleh distributor.");
+            return;
+        }
+
+        const price = parseInt(document.getElementById('dist-price').value);
+        const qtySold = state.distributedStock;
+        const revenue = qtySold * price;
+
+        state.money += revenue;
+        state.distributedStock = 0;
+
+        // Calculate satisfaction & efficiency
+        if (price > 25000) {
+            state.satisfaction = Math.max(30, state.satisfaction - 15);
+        } else {
+            state.satisfaction = Math.min(100, state.satisfaction + 10);
+        }
+
+        state.efficiency = Math.min(100, Math.max(40, Math.floor((state.money / 100000) * 70)));
+
+        playFanfareSound();
+        updateUI();
+        updateLog(`🎉 Pembeli melahap/membeli habis barang! Pendapatan: +Rp ${revenue.toLocaleString('id-ID')}`);
+    }
+
+    function updateUI() {
+        document.getElementById('sim-money').innerText = "Rp " + state.money.toLocaleString('id-ID');
+        document.getElementById('sim-stock').innerText = (state.producedStock + state.distributedStock) + " Unit";
+        
+        document.getElementById('sim-satisfaction-val').innerText = state.satisfaction + "%";
+        document.getElementById('sim-satisfaction-bar').style.width = state.satisfaction + "%";
+
+        document.getElementById('sim-efficiency-val').innerText = state.efficiency + "%";
+        document.getElementById('sim-efficiency-bar').style.width = state.efficiency + "%";
+
+        document.getElementById('dist-ready-qty').innerText = state.producedStock + " Unit";
+        document.getElementById('market-stock').innerText = state.distributedStock + " Unit";
+    }
+
+    function updateLog(msg) {
+        document.getElementById('sim-log-text').innerText = msg;
+    }
+
+    function resetSimulation() {
+        initAudio();
+        playResetSound();
+        state = {
+            money: 100000,
+            producedStock: 0,
+            distributedStock: 0,
+            satisfaction: 80,
+            efficiency: 75,
+            itemType: 'bambu'
+        };
+        updateProdCost();
+        updateDistCost();
+        updateUI();
+        updateLog("🔄 Simulasi telah direset ke kondisi awal.");
+    }
+
+    /* ================= LKPD Matching & Scoring Logic ================= */
+    let selectedLeft = null;
+    let matches = {};
+
+    function selectMatchLeft(id) {
+        initAudio();
+        playClickSound();
+        selectedLeft = id;
+        document.querySelectorAll('#matching-container button').forEach(b => {
+            if(b.id.startsWith('match-l-')) b.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+        });
+        document.getElementById('match-l-' + id).classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+    }
+
+    function selectMatchRight(category) {
+        initAudio();
+        if (!selectedLeft) {
+            playErrorSound();
+            alert("Pilih pekerjaan di sebelah kiri terlebih dahulu!");
+            return;
+        }
+
+        matches[selectedLeft] = category;
+        playClickSound();
+
+        const leftBtn = document.getElementById('match-l-' + selectedLeft);
+        leftBtn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-50');
+        leftBtn.classList.add('bg-emerald-100', 'border-emerald-500');
+        leftBtn.innerHTML = leftBtn.innerText.split('(')[0] + ` <span class="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded ml-1">-> ${category.toUpperCase()}</span>`;
+
+        selectedLeft = null;
+    }
+
+    function checkLKPD() {
+        initAudio();
+        let score = 0;
+
+        // Check Q1
+        const q1 = document.querySelector('input[name="q1"]:checked');
+        if (q1 && q1.value === 'B') score += 25;
+
+        // Check Q2
+        const q2 = document.querySelector('input[name="q2"]:checked');
+        if (q2 && q2.value === 'C') score += 25;
+
+        // Check Matching (30 pts)
+        if (matches[1] === 'produksi') score += 10;
+        if (matches[2] === 'distribusi') score += 10;
+        if (matches[3] === 'konsumsi') score += 10;
+
+        // Reflection text check (20 pts)
+        const reflection = document.getElementById('reflection-text').value.trim();
+        if (reflection.length > 10) score += 20;
+
+        // Display Score
+        const resultBox = document.getElementById('lkpd-result-box');
+        const scoreTxt = document.getElementById('lkpd-score');
+        const starTxt = document.getElementById('star-rating');
+
+        resultBox.classList.remove('hidden');
+        scoreTxt.innerText = `${score} / 100`;
+
+        if (score >= 90) starTxt.innerText = "⭐⭐⭐⭐⭐";
+        else if (score >= 70) starTxt.innerText = "⭐⭐⭐⭐";
+        else if (score >= 50) starTxt.innerText = "⭐⭐⭐";
+        else starTxt.innerText = "⭐⭐";
+
+        if (score >= 70) playFanfareSound();
+        else playErrorSound();
+    }
+
+    function printLKPD() {
+        initAudio();
+        playClickSound();
+        window.print();
+    }
+
+    /* ================= Global Reset ================= */
+    function confirmResetGlobal() {
+        initAudio();
+        playResetSound();
+        if (confirm("Apakah Anda yakin ingin mereset seluruh halaman lab maya ini?")) {
+            location.reload();
+        }
+    }
+</script>
+</body>
+</html>
